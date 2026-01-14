@@ -5,8 +5,8 @@ import { createClient } from '@supabase/supabase-js';
 // Cole abaixo a URL e a API Key (anon/public) que você pegou no painel do Supabase
 // (Project Settings -> API)
 
-const SUPABASE_URL = 'https://vldzlyxuvmjsiwhlqswg.supabase.co'; 
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsZHpseXh1dm1qc2l3aGxxc3dnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEzMzIwNjgsImV4cCI6MjA1NjkwODA2OH0.b-2S2m0V7w4_jQjS6b-k8L-r2Q_v7a7-1z5_0-8-5';
+const SUPABASE_URL = 'https://rcezuzynosmrelsrgoaj.supabase.co'; 
+const SUPABASE_ANON_KEY = 'sb_publishable_Z_SUQoMSJSZA1b6se1e5Uw_0KbW7T99';
 
 // --------------------------------
 
@@ -24,7 +24,8 @@ export const supabase = isConfigured
           console.warn("Supabase não configurado. Os dados não foram salvos no banco, apenas enviados por e-mail (se configurado).");
           return { error: null, data: null };
         },
-        select: () => ({ data: [], error: null }) 
+        select: () => ({ data: [], error: null }),
+        update: () => ({ eq: () => ({ error: null }) })
       }) 
     } as any;
 

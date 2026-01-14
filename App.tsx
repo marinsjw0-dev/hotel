@@ -1,25 +1,49 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import HotelCard from './components/HotelCard';
 import AIConcierge from './components/AIConcierge';
 import BookingModal from './components/BookingModal';
 import ReservationForm from './components/ReservationForm';
+import AdminPanel from './components/AdminPanel';
 import { HOTELS } from './constants';
 import { Hotel } from './types';
+import { supabase, supabaseIsActive } from './services/supabaseClient';
+
+// Imagem padrão caso o banco falhe ou esteja vazio
+const DEFAULT_HERO_BG = 'https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?auto=format&fit=crop&q=80&w=2000';
 
 const App: React.FC = () => {
   const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [heroBg, setHeroBg] = useState(DEFAULT_HERO_BG);
+
+  // Buscar imagem do banco ao carregar
+  useEffect(() => {
+    const fetchSettings = async () => {
+      if (!supabaseIsActive) return;
+      const { data } = await supabase.from('site_settings').select('value').eq('key', 'hero_bg').single();
+      if (data && data.value) {
+        setHeroBg(data.value);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   return (
     <div className="min-h-screen selection:bg-[#4a3728] selection:text-white bg-[#fdfbf7]">
       <Navbar />
 
       <main>
-        {/* HERO SECTION */}
+        {/* HERO SECTION - Com imagem dinâmica */}
         <section className="relative h-screen flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 z-0">
-            <div className="w-full h-full hero-bg bg-fixed"></div>
+            {/* Usando style inline para a imagem dinâmica */}
+            <div 
+              className="w-full h-full bg-cover bg-center bg-fixed transition-all duration-1000"
+              style={{ 
+                backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url('${heroBg}')` 
+              }}
+            ></div>
             <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-[#fdfbf7]"></div>
           </div>
           
@@ -150,7 +174,7 @@ const App: React.FC = () => {
         </section>
       </main>
 
-      <footer className="bg-[#0f0c0b] text-white py-24 px-6 border-t border-white/5">
+      <footer className="bg-[#0f0c0b] text-white py-24 px-6 border-t border-white/5 relative">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-16">
           <div className="text-center md:text-left">
             <h2 className="text-5xl font-script text-white mb-2">Matterhorn</h2>
@@ -159,7 +183,7 @@ const App: React.FC = () => {
           <div className="flex gap-16 text-[10px] font-bold uppercase tracking-widest text-white/30">
              <a href="#" className="hover:text-white transition-colors">Privacidade</a>
              <a href="#" className="hover:text-white transition-colors">Imprensa</a>
-             <a href="#" className="hover:text-white transition-colors">Carreiras</a>
+             <button onClick={() => setShowAdmin(true)} className="hover:text-white transition-colors">Admin</button>
           </div>
           <p className="text-white/10 text-[9px] font-mono tracking-tighter">© 2024 Matterhorn Group Brazil.</p>
         </div>
@@ -169,6 +193,13 @@ const App: React.FC = () => {
       
       {selectedHotel && (
         <BookingModal hotel={selectedHotel} onClose={() => setSelectedHotel(null)} />
+      )}
+
+      {showAdmin && (
+        <AdminPanel 
+          onClose={() => setShowAdmin(false)} 
+          onUpdateImage={(newUrl) => setHeroBg(newUrl)}
+        />
       )}
     </div>
   );
