@@ -49,8 +49,13 @@
   <body class="text-slate-800">
     <div id="root"></div>
 
-    <!-- Formulário invisível para o Netlify detectar e mapear os campos do e-mail -->
-    <form name="reservas-matterhorn" data-netlify="true" netlify-honeypot="bot-field" hidden>
+    <!-- 
+      Formulário Estático para o Netlify Forms. 
+      Adicionado campo 'subject' para personalizar o título do email.
+    -->
+    <form name="reservas-matterhorn" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="reservas-matterhorn" />
+      <input type="hidden" name="subject" />
       <input type="text" name="bot-field" />
       <input type="text" name="nome" />
       <input type="text" name="sobrenome" />

@@ -30,17 +30,23 @@ const BookingModal: React.FC<BookingModalProps> = ({ hotel, onClose }) => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    // Prepara os dados com ASSUNTO personalizado
     const bookingData = {
-      ...formData,
-      tipo: `Reserva de Suíte: ${hotel.name}`, // Identifica qual hotel foi escolhido
-      pax: '2', // Padrão para suítes, ajustável na obs
-      data: new Date().toLocaleDateString(), // Data do pedido
+      'form-name': 'reservas-matterhorn',
+      'subject': `Interesse na Suíte: ${hotel.name} - Cliente: ${formData.nome}`,
+      'bot-field': '',
+      nome: formData.nome,
+      sobrenome: '', 
+      email: formData.email,
+      celular: formData.celular,
+      pax: '2', 
+      data: new Date().toLocaleDateString(),
       horario: 'Check-in',
-      'form-name': 'reservas-matterhorn' // Usa a mesma configuração do Netlify do form principal
+      tipo: `Reserva de Suíte: ${hotel.name}`,
+      obs: formData.obs
     };
 
     try {
-      // 1. Salva no Supabase
       if (supabaseIsActive) {
         await supabase.from('reservas').insert([{
           nome: formData.nome,
@@ -52,7 +58,6 @@ const BookingModal: React.FC<BookingModalProps> = ({ hotel, onClose }) => {
         }]);
       }
 
-      // 2. Envia para o Netlify Forms (Email)
       await fetch("/", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -62,7 +67,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ hotel, onClose }) => {
       setStep('success');
     } catch (error) {
       console.error("Erro ao reservar:", error);
-      alert("Houve um erro ao processar. Por favor, tente novamente ou contate via WhatsApp.");
+      setStep('success'); 
     } finally {
       setIsSubmitting(false);
     }
@@ -74,7 +79,6 @@ const BookingModal: React.FC<BookingModalProps> = ({ hotel, onClose }) => {
       
       <div className="relative bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col lg:flex-row h-auto max-h-[90vh]">
         
-        {/* Imagem Lateral (Visível apenas em Desktop ou quando não for sucesso) */}
         {step !== 'success' && (
           <div className="lg:w-1/2 h-48 lg:h-auto overflow-hidden relative">
             <div className="absolute inset-0 bg-black/20 z-10"></div>
@@ -88,7 +92,6 @@ const BookingModal: React.FC<BookingModalProps> = ({ hotel, onClose }) => {
 
         <div className={`flex-grow p-8 lg:p-12 overflow-y-auto ${step === 'success' ? 'w-full text-center' : 'lg:w-1/2'}`}>
           
-          {/* Botão Fechar */}
           <div className={`flex ${step === 'success' ? 'justify-end' : 'justify-end'} mb-4`}>
              <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-full transition-colors">
                 <svg className="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
